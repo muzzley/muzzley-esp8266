@@ -35,18 +35,5 @@ String SupportFunctions::macToStr(const uint8_t* mac)
   return result;
 }
 
-String SupportFunctions::randomStr(int length, String *randomstring)
-{
-
-  char letters[] = {'a', 'b','c', 'd', 'e', 'f', 'g', 'h', 'i', 'j','k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'x', 'y', 'z'};
-  const byte lettersLength = sizeof(letters) / sizeof(letters[0]);
-
-  for (int n = 0; n < length ; n++)
-  {
-    *randomstring = String(*randomstring + letters[random(0, lettersLength)]);
-  }
-
-
-}
 
 

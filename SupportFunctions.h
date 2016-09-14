@@ -7,7 +7,6 @@ class SupportFunctions
     SupportFunctions();
     String getValue(String data, char separator, int index);
     String macToStr(const uint8_t* mac);
-    String randomStr(int length, String *randomstring);
   private:
 };
 
