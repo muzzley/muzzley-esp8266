@@ -23,7 +23,7 @@ Muzzley muzzley;
 Data data;
 MuzzleyRegister muzzleyconf;
 SupportFunctions sf;
-MQTTClient mqtt;
+MQTTClient client;
 
 void set_status(bool status);
 
@@ -75,6 +75,7 @@ void setup() {
   muzzley.init_local_discovery(profile, serialNumber, mac, deviceKey);
   muzzley.init_web_server();
 
+  client.begin(muzzley_host, muzzley_port, net); // MQTT brokers usually use port 8883 for secure connections
   //connect();
   
   delay (200);
@@ -87,14 +88,32 @@ void setup() {
 
 
 void loop() {
-  Serial.println("Calling muzzley:loop");
-  muzzley.loop();
-  Serial.println("After muzzley:loop");
+  client.loop();
   delay(20);
   
-  if (!muzzley.connected()) {
-    Serial.println("Calling muzzley:connect");
-    muzzley.connect(mqtt, net);
+  if (!client.connected()) {
+     
+     while (!client.connected()) {
+      Serial.print("\nAttempting MQTT connection...");
+      delay (10); 
+      if (client.connect("ESP8266Client", muzzley_uuid, muzzley_app_token)) {
+        Serial.println("connected");
+
+        uint8_t mac[6];
+        WiFi.macAddress(mac);
+        String deviceKey;
+        String serialNumber = sf.macToStr(mac);
+        muzzleyconf.getDeviceKey(&deviceKey, &serialNumber);
+        Serial.println(deviceKey);
+      
+        client.subscribe("v1/iot/profiles/" + profile + "/channels/" + deviceKey + "/#");
+      } else {
+      Serial.print("failed, rc=");
+      Serial.println(" try again in 5 seconds");
+      delay(1000);
+    }
+  }
+    
   }
 
   // handle http server - used for UPNP discovery XML provider
